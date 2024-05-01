@@ -9,7 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fastcampus.sns.contoller.request.UserJoinRequest;
 import com.fastcampus.sns.contoller.request.UserLoginRequest;
 import com.fastcampus.sns.exception.SnsApplicationException;
-import com.fastcampus.sns.model.User;
+import com.fastcampus.sns.exception.enums.ErrorCode;
+import com.fastcampus.sns.model.dto.User;
 import com.fastcampus.sns.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -53,7 +54,7 @@ public class UserControllerTest {
 		String userName = "userName";
 		String password ="password";
 
-		when(userService.join(userName,password)).thenThrow(new SnsApplicationException());
+		when(userService.join(userName,password)).thenThrow(new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME, ""));
 
 		//TODO :
 		mockMvc.perform(post("/api/v1/users/join")
@@ -84,7 +85,7 @@ public class UserControllerTest {
 		String userName = "userName";
 		String password ="password";
 
-		when(userService.login(userName,password)).thenThrow(new SnsApplicationException());
+		when(userService.login(userName,password)).thenThrow(new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME, ""));
 
 		mockMvc.perform(post("/api/v1/users/login")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -99,7 +100,7 @@ public class UserControllerTest {
 		String userName = "userName";
 		String password ="password";
 
-		when(userService.login(userName,password)).thenThrow(new SnsApplicationException());
+		when(userService.login(userName,password)).thenThrow(new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME, ""));
 
 		mockMvc.perform(post("/api/v1/users/login")
 				.contentType(MediaType.APPLICATION_JSON)
