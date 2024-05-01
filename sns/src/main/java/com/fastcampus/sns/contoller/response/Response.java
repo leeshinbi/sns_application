@@ -16,8 +16,23 @@ public class Response<T> {
 	}
 
 	// 성공일 경우엔, 다양한 result 형태가 들어가기 때문에 <T> 반환
+	public static <T> Response<T> success() {
+		return new Response<T>("SUCCESS", null);
+	}
 	public static <T> Response<T> success(T result) {
-		return new Response<>("SUCCESS", null);
+		return new Response<T>("SUCCESS", result);
 	}
 
+	public String toStream() {
+		if (result == null) {
+			return "{" +
+				"\"resultCode\":" + "\"" + resultCode + "\"," +
+				"\"result\":" + null +
+				"}";
+		}
+		return "{" +
+			"\"resultCode\":" + "\"" + resultCode + "\"," +
+			"\"result\":" + "\"" + result + "\"," +
+			"}";
+	}
 }
