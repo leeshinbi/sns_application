@@ -6,14 +6,18 @@ import com.fastcampus.sns.model.dto.User;
 import com.fastcampus.sns.model.entity.UserEntity;
 import com.fastcampus.sns.repository.UserEntityRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
 	private final UserEntityRepository userEntityRepository;
+	private final BCryptPasswordEncoder encoder;
 
+	@Transactional
 	public User join(String userName, String password) {
 		// 회원 가입하려는 userName으로 회원가입된 user가 있는지
 		userEntityRepository.findByUserName(userName).ifPresent(it -> {
@@ -22,9 +26,10 @@ public class UserService {
 
 
 		// 없다면, 회원 가입 진행 = 유저 등록
-		UserEntity userEntity = userEntityRepository.save(UserEntity.of(userName,password));
+		UserEntity userEntity = userEntityRepository.save(UserEntity.of(userName,encoder.encode(password)));
+		throw new RuntimeException();
+		// return User.fromEntity(userEntity);
 
-		return new User();
 	}
 
 	public String login(String userName, String password) { // 토큰을 반환해야하기 때문에 반환값은 String
