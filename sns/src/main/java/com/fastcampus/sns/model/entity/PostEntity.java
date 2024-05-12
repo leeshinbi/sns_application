@@ -43,14 +43,6 @@ public class PostEntity {
 	@JoinColumn(name = "user_id")
 	private UserEntity user;
 
-	@OneToMany(fetch = FetchType.LAZY)
-	@JoinColumn(name = "post_id")
-	private List<CommentEntity> comments;
-
-	@OneToMany(fetch = FetchType.LAZY)
-	@JoinColumn(name = "post_id")
-	private List<LikeEntity> likes;
-
 	@Column(name = "registered_at")
 	private Timestamp registeredAt;
 
