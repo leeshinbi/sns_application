@@ -1,2 +1,1 @@
-# sns_application
-SNS 어플리케이션 
+대규모 트래픽을 고려한 sns 어플리케이션 
