@@ -29,4 +29,16 @@ public class PostService {
 
 	}
 
+	@Transactional
+	public void modify(String title, String body, String userName, Integer postId) {
+
+		//유저 찾기
+		UserEntity userEntity = userEntityRepository.findByUserName(userName).orElseThrow(() ->
+			new SnsApplicationException(ErrorCode.USER_NOT_FOUND,
+				String.format("%s not founded", userName)));
+		//게시글이 존재하는지 확인
+
+		//수정하려는 사람이 포스트를 작성한 사람인지 확인
+
+	}
 }

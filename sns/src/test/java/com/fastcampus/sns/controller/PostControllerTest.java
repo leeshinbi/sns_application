@@ -1,10 +1,17 @@
 package com.fastcampus.sns.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fastcampus.sns.contoller.request.PostCreateRequest;
+import com.fastcampus.sns.contoller.request.PostModifyRequest;
+import com.fastcampus.sns.exception.SnsApplicationException;
+import com.fastcampus.sns.exception.enums.ErrorCode;
 import com.fastcampus.sns.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -32,7 +39,7 @@ public class PostControllerTest {
 
 	@Test
 	@WithMockUser // 인증된 사용자로 포스트 작성
-	void 포스트작성_성공한_경우() throws Exception {
+	void 포스트_작성_성공한_경우() throws Exception {
 
 		String title = "title";
 		String body = "body";
@@ -47,7 +54,7 @@ public class PostControllerTest {
 
 	@Test
 	@WithAnonymousUser // 익명의 유저로 이 요청을 날렸을 경우
-	void 포스트작성시_로그인하지_않은_경우() throws Exception {
+	void 포스트작성시_로그인하지_않은_경우_에러발생() throws Exception {
 
 		String title = "title";
 		String body = "body";
@@ -56,7 +63,69 @@ public class PostControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(new PostCreateRequest(title,body)))
 			).andDo(print())
-			.andExpect(status().isUnauthorized());
+			.andExpect(status().is(ErrorCode.INVALID_TOKEN.getStatus().value()));
+	}
+
+	@Test
+	@WithMockUser
+	void 포스트_수정_성공한_경우() throws Exception {
+
+		String title = "title";
+		String body = "body";
+
+		mockMvc.perform(put("/api/v1/posts/1")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsBytes(new PostModifyRequest(title,body)))
+			).andDo(print())
+			.andExpect(status().isOk()); // 정상 동작
+	}
+
+	@Test
+	@WithAnonymousUser
+	void 포스트수정시_로그인하지_않은_경우_에러발생() throws Exception {
+
+		String title = "title";
+		String body = "body";
+
+		mockMvc.perform(put("/api/v1/posts/1")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsBytes(new PostModifyRequest(title,body)))
+			).andDo(print())
+			.andExpect(status().is(ErrorCode.INVALID_TOKEN.getStatus().value())); // 정상 동작
+	}
+
+	@Test
+	@WithMockUser
+	void 포스트_수정시_본인이_작성한_게시글이_아닌경우_에러발생() throws Exception {
+
+		String title = "title";
+		String body = "body";
+
+		//mocking
+		doThrow(new SnsApplicationException(ErrorCode.INVALID_PERMISSION)).when(postService).modify(eq(title),eq(body),any(),eq(1));
+
+		mockMvc.perform(put("/api/v1/posts/1")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsBytes(new PostModifyRequest("title", "body"))))
+			.andDo(print())
+			.andExpect(status().is(ErrorCode.INVALID_PERMISSION.getStatus().value()));
+	}
+
+	@Test
+	@WithMockUser
+	void 포스트_수정시_수정하려는_게시물이_없는_경우_에러발생() throws Exception {
+
+		String title = "title";
+		String body = "body";
+
+		//mocking
+		doThrow(new SnsApplicationException(ErrorCode.POST_NOT_FOUND)).when(postService).modify(eq(title),eq(body),any(),eq(1));
+
+		mockMvc.perform(put("/api/v1/posts/1")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsBytes(new PostModifyRequest(title,body)))
+			).andDo(print())
+			.andExpect(status().is(ErrorCode.POST_NOT_FOUND.getStatus().value()));
 	}
 
 }
