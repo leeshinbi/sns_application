@@ -79,6 +79,8 @@ public class PostServiceTest {
 		when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(userEntity));
 		//mocking
 		when(postEntityRepository.findById(postId)).thenReturn(Optional.of(postEntity));
+		//mocking
+		when(postEntityRepository.saveAndFlush(any())).thenReturn(postEntity);
 
 		Assertions.assertDoesNotThrow(() ->postService.modify(title, body, userName,postId));
 
