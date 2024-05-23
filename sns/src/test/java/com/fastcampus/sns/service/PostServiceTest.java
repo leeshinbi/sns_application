@@ -228,7 +228,9 @@ public class PostServiceTest {
 	@Test
 	void 피드목록_요청이_성공한_경우() {
 
+		// Mocking
 		Pageable pageable = mock(Pageable.class);
+
 		when(postEntityRepository.findAll(pageable)).thenReturn(Page.empty());
 		Assertions.assertDoesNotThrow(() ->postService.list(pageable));
 
@@ -237,8 +239,12 @@ public class PostServiceTest {
 	@Test
 	void 내_피드목록_요청이_성공한_경우() {
 
+		// Mocking
 		Pageable pageable = mock(Pageable.class);
-		when(postEntityRepository.findAllByUser(any(), pageable)).thenReturn(Page.empty());
+		UserEntity user = mock(UserEntity.class);
+
+		when(userEntityRepository.findByUserName(any())).thenReturn(Optional.of(user));
+		when(postEntityRepository.findAllByUser(user, pageable)).thenReturn(Page.empty());
 		Assertions.assertDoesNotThrow(() ->postService.my("", pageable));
 
 	}

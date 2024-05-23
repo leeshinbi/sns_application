@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -182,7 +183,7 @@ public class PostControllerTest {
 		// mocking
 		when(postService.list(any())).thenReturn(Page.empty());
 
-		mockMvc.perform(post("/api/v1/posts")
+		mockMvc.perform(get("/api/v1/posts")
 				.contentType(MediaType.APPLICATION_JSON)
 			).andDo(print())
 			.andExpect(status().isOk()); // 정상 동작
@@ -195,7 +196,7 @@ public class PostControllerTest {
 		// mocking
 		when(postService.list(any())).thenReturn(Page.empty());
 
-		mockMvc.perform(post("/api/v1/posts")
+		mockMvc.perform(get("/api/v1/posts")
 				.contentType(MediaType.APPLICATION_JSON)
 			).andDo(print())
 			.andExpect(status().isUnauthorized());
@@ -208,7 +209,7 @@ public class PostControllerTest {
 		// mocking
 		when(postService.my(any(), any())).thenReturn(Page.empty());
 
-		mockMvc.perform(post("/api/v1/posts/my")
+		mockMvc.perform(get("/api/v1/posts/my")
 				.contentType(MediaType.APPLICATION_JSON)
 			).andDo(print())
 			.andExpect(status().isOk()); // 정상 동작
@@ -221,7 +222,7 @@ public class PostControllerTest {
 		// mocking
 		when(postService.my(any(), any())).thenReturn(Page.empty());
 
-		mockMvc.perform(post("/api/v1/posts/my")
+		mockMvc.perform(get("/api/v1/posts/my")
 				.contentType(MediaType.APPLICATION_JSON)
 			).andDo(print())
 			.andExpect(status().isUnauthorized());
