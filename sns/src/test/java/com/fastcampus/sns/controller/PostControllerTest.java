@@ -69,6 +69,8 @@ public class PostControllerTest {
 			.andExpect(status().is(ErrorCode.INVALID_TOKEN.getStatus().value()));
 	}
 
+	///////////////// 포스트 수정
+
 	@Test
 	@WithMockUser
 	void 포스트_수정_성공한_경우() throws Exception {
@@ -134,4 +136,53 @@ public class PostControllerTest {
 			.andExpect(status().is(ErrorCode.POST_NOT_FOUND.getStatus().value()));
 	}
 
+////////////////포스트 삭제
+
+	@Test
+	@WithMockUser
+	void 포스트_삭제_성공한_경우() throws Exception {
+
+		mockMvc.perform(put("/api/v1/posts/1")
+				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().isOk()); // 정상 동작
+	}
+
+	@Test
+	@WithAnonymousUser
+	void 포스트_삭제시_로그인하지_않은_경우() throws Exception {
+
+		mockMvc.perform(put("/api/v1/posts/1")
+				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	@WithMockUser
+	void 포스트_삭제시_작성자와_삭제요청자가_다를_경우() throws Exception {
+
+		//mocking
+		doThrow(new SnsApplicationException(ErrorCode.INVALID_PERMISSION)).when(postService)
+			.delete(any(), any());
+
+		mockMvc.perform(put("/api/v1/posts/1")
+				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	@WithMockUser
+	void 포스트_삭제시_삭제하려는_포스트가_존재하지_않는_경우() throws Exception {
+
+		//mocking
+		doThrow(new SnsApplicationException(ErrorCode.POST_NOT_FOUND)).when(postService)
+			.delete(any(), any());
+
+		mockMvc.perform(put("/api/v1/posts/1")
+				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().isNotFound());
+	}
 }

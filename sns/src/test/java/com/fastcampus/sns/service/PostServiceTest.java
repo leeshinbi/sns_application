@@ -157,5 +157,66 @@ public class PostServiceTest {
 
 	}
 
+////////////////////// 포스트 삭제
 
+	@Test
+	void 포스트_삭제_성공한_경우() {
+
+		String userName = "userName";
+		Integer postId = 1;
+
+		PostEntity postEntity = PostEntityFixture.get(userName, postId);
+		UserEntity userEntity = postEntity.getUser();
+
+
+		//mocking
+		when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(userEntity));
+		//mocking
+		when(postEntityRepository.findById(postId)).thenReturn(Optional.of(postEntity));
+
+		Assertions.assertDoesNotThrow(() ->postService.delete(userName,1));
+
+	}
+
+	@Test
+	void 포스트_삭제시_포스트가_존재하지_않는_경우() {
+
+		String userName = "userName";
+		Integer postId = 1;
+
+		PostEntity postEntity = PostEntityFixture.get(userName, postId);
+		UserEntity userEntity = postEntity.getUser();
+
+
+		//mocking
+		when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(userEntity));
+		//mocking
+		when(postEntityRepository.findById(postId)).thenReturn(Optional.empty());
+
+		SnsApplicationException e = Assertions.assertThrows(SnsApplicationException.class,
+			() ->postService.delete(userName,1));
+		Assertions.assertEquals(ErrorCode.POST_NOT_FOUND, e.getErrorCode());
+
+	}
+
+	@Test
+	void 포스트_삭제시_권한이_없는_경우() {
+
+		String userName = "userName";
+		Integer postId = 1;
+
+		PostEntity postEntity = PostEntityFixture.get(userName, postId);
+		UserEntity userEntity = postEntity.getUser();
+
+
+		//mocking
+		when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(userEntity));
+		//mocking
+		when(postEntityRepository.findById(postId)).thenReturn(Optional.of(postEntity));
+
+		SnsApplicationException e = Assertions.assertThrows(SnsApplicationException.class,
+			() ->postService.delete(userName,1));
+		Assertions.assertEquals(ErrorCode.INVALID_PERMISSION, e.getErrorCode());
+
+	}
 }
