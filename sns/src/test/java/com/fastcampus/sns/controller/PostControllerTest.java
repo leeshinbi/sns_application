@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
@@ -171,4 +172,62 @@ public class PostControllerTest {
 			.andDo(print())
 			.andExpect(status().is(ErrorCode.POST_NOT_FOUND.getStatus().value()));
 	}
+
+	/////////////////// 피드 조회
+
+	@Test
+	@WithMockUser
+	void 피드목록_조회_성공한_경우() throws Exception {
+
+		// mocking
+		when(postService.list(any())).thenReturn(Page.empty());
+
+		mockMvc.perform(post("/api/v1/posts")
+				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().isOk()); // 정상 동작
+	}
+
+	@Test
+	@WithAnonymousUser
+	void 피드목록_조회시_로그인하지_않은_경우() throws Exception {
+
+		// mocking
+		when(postService.list(any())).thenReturn(Page.empty());
+
+		mockMvc.perform(post("/api/v1/posts")
+				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	@WithMockUser
+	void 내피드목록_조회_성공한_경우() throws Exception {
+
+		// mocking
+		when(postService.my(any(), any())).thenReturn(Page.empty());
+
+		mockMvc.perform(post("/api/v1/posts/my")
+				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().isOk()); // 정상 동작
+	}
+
+	@Test
+	@WithAnonymousUser
+	void 내피드목록_조회시_로그인하지_않은_경우() throws Exception {
+
+		// mocking
+		when(postService.my(any(), any())).thenReturn(Page.empty());
+
+		mockMvc.perform(post("/api/v1/posts/my")
+				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().isUnauthorized());
+	}
+
+
+
+
 }

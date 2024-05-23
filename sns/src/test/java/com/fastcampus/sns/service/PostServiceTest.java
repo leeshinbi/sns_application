@@ -18,6 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @SpringBootTest
 public class PostServiceTest {
@@ -63,6 +65,7 @@ public class PostServiceTest {
 		Assertions.assertEquals(ErrorCode.USER_NOT_FOUND, e.getErrorCode());
 	}
 
+	//////////////// 포스트 수정
 	@Test
 	void 포스트_수정_성공한_경우() {
 
@@ -219,4 +222,26 @@ public class PostServiceTest {
 		Assertions.assertEquals(ErrorCode.INVALID_PERMISSION, e.getErrorCode());
 
 	}
+
+//////////////// 포스트 조회
+
+	@Test
+	void 피드목록_요청이_성공한_경우() {
+
+		Pageable pageable = mock(Pageable.class);
+		when(postEntityRepository.findAll(pageable)).thenReturn(Page.empty());
+		Assertions.assertDoesNotThrow(() ->postService.list(pageable));
+
+	}
+
+	@Test
+	void 내_피드목록_요청이_성공한_경우() {
+
+		Pageable pageable = mock(Pageable.class);
+		when(postEntityRepository.findAllByUser(any(), pageable)).thenReturn(Page.empty());
+		Assertions.assertDoesNotThrow(() ->postService.my("", pageable));
+
+	}
+
+
 }

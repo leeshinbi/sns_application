@@ -5,10 +5,13 @@ import com.fastcampus.sns.contoller.request.PostModifyRequest;
 import com.fastcampus.sns.contoller.response.PostResponse;
 import com.fastcampus.sns.contoller.response.Response;
 import com.fastcampus.sns.model.dto.Post;
+import org.springframework.data.domain.Pageable;
 import com.fastcampus.sns.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -39,6 +42,16 @@ public class PostController {
 	public Response<Void> delete(@PathVariable Integer postId, Authentication authentication) {
 		postService.delete(authentication.getName(), postId);
 		return Response.success();
+	}
+
+	@GetMapping // 모든 유저의 모든 게시물 조회
+	public Response<Page<PostResponse>> list(Pageable pageable, Authentication authentication) {
+		return Response.success(postService.list(pageable).map(PostResponse::fromPost));
+	}
+
+	@GetMapping("/my") // 내 모든 게시물 조회
+	public Response<Page<PostResponse>> myPosts(Pageable pageable, Authentication authentication) {
+		return Response.success(postService.my(authentication.getName(), pageable).map(PostResponse::fromPost));
 	}
 
 

@@ -8,7 +8,9 @@ import com.fastcampus.sns.model.entity.UserEntity;
 import com.fastcampus.sns.repository.PostEntityRepository;
 import com.fastcampus.sns.repository.UserEntityRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Pageable;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -75,6 +77,21 @@ public class PostService {
 		}
 
 		postEntityRepository.delete(postEntity);
+	}
+
+	// entity mapping
+	public Page<Post> list(Pageable pageable) {
+		return postEntityRepository.findAll(pageable).map(Post::fromEntity);
+	}
+
+	public Page<Post> my(String userName, Pageable pageable) {
+
+		//유저 찾기
+		UserEntity userEntity = userEntityRepository.findByUserName(userName).orElseThrow(() ->
+			new SnsApplicationException(ErrorCode.USER_NOT_FOUND,
+				String.format("%s not founded", userName)));
+
+		return postEntityRepository.findAllByUser(userEntity, pageable).map(Post::fromEntity);
 	}
 
 }
