@@ -199,7 +199,7 @@ public class PostControllerTest {
 		mockMvc.perform(get("/api/v1/posts")
 				.contentType(MediaType.APPLICATION_JSON)
 			).andDo(print())
-			.andExpect(status().isUnauthorized());
+			.andExpect(status().is(ErrorCode.INVALID_TOKEN.getStatus().value()));
 	}
 
 	@Test
@@ -225,10 +225,41 @@ public class PostControllerTest {
 		mockMvc.perform(get("/api/v1/posts/my")
 				.contentType(MediaType.APPLICATION_JSON)
 			).andDo(print())
-			.andExpect(status().isUnauthorized());
+			.andExpect(status().is(ErrorCode.INVALID_TOKEN.getStatus().value()));
 	}
 
+///////////////////////////// 피드 좋아요 기능
 
+	@Test
+	@WithMockUser
+	void 좋아요_기능_성공한_경우() throws Exception {
 
+		mockMvc.perform(get("/api/v1/posts/1/likes")
+				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().isOk()); // 정상 동작
+	}
+
+	@Test
+	@WithAnonymousUser
+	void 좋아요버튼_클릭시_로그인하지_않은_경우() throws Exception {
+
+		mockMvc.perform(get("/api/v1/posts/1/likes")
+				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().is(ErrorCode.INVALID_TOKEN.getStatus().value()));
+	}
+
+	@Test
+	@WithMockUser
+	void 좋아요버튼_클릭시_게시물이_없는_경우() throws Exception {
+
+		doThrow(new SnsApplicationException(ErrorCode.POST_NOT_FOUND)).when(postService)
+			.like(any(), any());
+
+		mockMvc.perform(get("/api/v1/posts/1/likes")
+				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().is(ErrorCode.POST_NOT_FOUND.getStatus().value()));	}
 
 }

@@ -79,11 +79,12 @@ public class PostService {
 		postEntityRepository.delete(postEntity);
 	}
 
-	// entity mapping
+	// 모든 유저의 모든 피드 목록
 	public Page<Post> list(Pageable pageable) {
 		return postEntityRepository.findAll(pageable).map(Post::fromEntity);
 	}
 
+	// 내 모든 피드 목록
 	public Page<Post> my(String userName, Pageable pageable) {
 
 		//유저 찾기
@@ -93,5 +94,12 @@ public class PostService {
 
 		return postEntityRepository.findAllByUser(userEntity, pageable).map(Post::fromEntity);
 	}
+
+	// 피드 좋아요
+	@Transactional
+	public void like(Integer postId, String userName) {
+
+	}
+
 
 }
