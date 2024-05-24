@@ -1,7 +1,9 @@
 package com.fastcampus.sns.contoller;
 
+import com.fastcampus.sns.contoller.request.PostCommentRequest;
 import com.fastcampus.sns.contoller.request.PostCreateRequest;
 import com.fastcampus.sns.contoller.request.PostModifyRequest;
+import com.fastcampus.sns.contoller.response.CommentResponse;
 import com.fastcampus.sns.contoller.response.PostResponse;
 import com.fastcampus.sns.contoller.response.Response;
 import com.fastcampus.sns.model.dto.Post;
@@ -27,14 +29,17 @@ public class PostController {
 	private final PostService postService;
 
 	@PostMapping("")
-	public Response<Void> create(@RequestBody PostCreateRequest request, Authentication authentication) {
+	public Response<Void> create(@RequestBody PostCreateRequest request,
+		Authentication authentication) {
 		postService.create(request.getTitle(), request.getBody(), authentication.getName());
 		return Response.success();
 	}
 
 	@PutMapping("/{postId}")
-	public Response<PostResponse> modify(@PathVariable Integer postId, @RequestBody PostModifyRequest request, Authentication authentication) {
-		Post post = postService.modify(request.getTitle(), request.getBody(), authentication.getName(),postId);
+	public Response<PostResponse> modify(@PathVariable Integer postId,
+		@RequestBody PostModifyRequest request, Authentication authentication) {
+		Post post = postService.modify(request.getTitle(), request.getBody(),
+			authentication.getName(), postId);
 		return Response.success(PostResponse.fromPost(post));
 	}
 
@@ -51,7 +56,8 @@ public class PostController {
 
 	@GetMapping("/my") // 내 모든 게시물 조회
 	public Response<Page<PostResponse>> myPosts(Pageable pageable, Authentication authentication) {
-		return Response.success(postService.my(authentication.getName(), pageable).map(PostResponse::fromPost));
+		return Response.success(
+			postService.my(authentication.getName(), pageable).map(PostResponse::fromPost));
 	}
 
 	@PostMapping("/{postId}/likes") // 피드 좋아요 누르기
@@ -60,9 +66,22 @@ public class PostController {
 		return Response.success();
 	}
 
-	@GetMapping("/{postId}/likes")
+	@GetMapping("/{postId}/likes") // 좋아요 개수 가져오기
 	public Response<Integer> getLikes(@PathVariable Integer postId, Authentication authentication) {
 		return Response.success(postService.getLikeCount(postId));
 	}
 
+	@PostMapping("/{postId}/comments") // 댓글 작성
+	public Response<Void> comment(@PathVariable Integer postId,
+		@RequestBody PostCommentRequest request, Authentication authentication) {
+		postService.comment(postId, authentication.getName(), request.getComment());
+		return Response.success();
+	}
+
+	@GetMapping("/{postId}/comments")
+	public Response<Page<CommentResponse>> getComments(Pageable pageable,
+		@PathVariable Integer postId) {
+		return Response.success(
+			postService.getComments(postId, pageable).map(CommentResponse::fromComment));
+	}
 }

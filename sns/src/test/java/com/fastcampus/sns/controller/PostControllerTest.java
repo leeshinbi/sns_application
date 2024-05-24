@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fastcampus.sns.contoller.request.PostCommentRequest;
 import com.fastcampus.sns.contoller.request.PostCreateRequest;
 import com.fastcampus.sns.contoller.request.PostModifyRequest;
 import com.fastcampus.sns.exception.SnsApplicationException;
@@ -260,6 +261,46 @@ public class PostControllerTest {
 		mockMvc.perform(post("/api/v1/posts/1/likes")
 				.contentType(MediaType.APPLICATION_JSON)
 			).andDo(print())
-			.andExpect(status().is(ErrorCode.POST_NOT_FOUND.getStatus().value()));	}
+			.andExpect(status().is(ErrorCode.POST_NOT_FOUND.getStatus().value()));
+	}
+
+	///////////////////// 댓글 기능
+
+	@Test
+	@WithMockUser
+	void 댓글_기능_성공한_경우() throws Exception {
+
+		mockMvc.perform(post("/api/v1/posts/1/comments")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsBytes(new PostCommentRequest("comment")))
+			).andDo(print())
+			.andExpect(status().isOk()); // 정상 동작
+	}
+
+	@Test
+	@WithAnonymousUser
+	void 댓글_작성시_로그인하지_않은_경우() throws Exception {
+
+		mockMvc.perform(post("/api/v1/posts/1/comments")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsBytes(new PostCommentRequest("comment")))
+			).andDo(print())
+			.andExpect(status().is(ErrorCode.INVALID_TOKEN.getStatus().value()));
+	}
+
+	@Test
+	@WithMockUser
+	void 댓글_작성시_게시물이_없는_경우() throws Exception {
+
+		doThrow(new SnsApplicationException(ErrorCode.POST_NOT_FOUND)).when(postService)
+			.comment(any(), any(),any());
+
+		mockMvc.perform(post("/api/v1/posts/1/comments")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsBytes(new PostCommentRequest("comment")))
+			).andDo(print())
+			.andExpect(status().is(ErrorCode.POST_NOT_FOUND.getStatus().value()));
+	}
+
 
 }

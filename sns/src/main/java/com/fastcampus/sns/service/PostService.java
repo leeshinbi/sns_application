@@ -2,10 +2,13 @@ package com.fastcampus.sns.service;
 
 import com.fastcampus.sns.exception.SnsApplicationException;
 import com.fastcampus.sns.exception.enums.ErrorCode;
+import com.fastcampus.sns.model.dto.Comment;
 import com.fastcampus.sns.model.dto.Post;
+import com.fastcampus.sns.model.entity.CommentEntity;
 import com.fastcampus.sns.model.entity.LikeEntity;
 import com.fastcampus.sns.model.entity.PostEntity;
 import com.fastcampus.sns.model.entity.UserEntity;
+import com.fastcampus.sns.repository.CommentEntityRepository;
 import com.fastcampus.sns.repository.LikeEntityRepository;
 import com.fastcampus.sns.repository.PostEntityRepository;
 import com.fastcampus.sns.repository.UserEntityRepository;
@@ -23,6 +26,7 @@ public class PostService {
 	private final PostEntityRepository postEntityRepository;
 	private final UserEntityRepository userEntityRepository;
 	private final LikeEntityRepository likeEntityRepository;
+	private final CommentEntityRepository commentEntityRepository;
 
 	@Transactional
 	public void create(String title, String body, String userName) {
@@ -139,6 +143,34 @@ public class PostService {
 		/*List<LikeEntity> likes = likeEntityRepository.findAllByPost(postEntity);
 		return likes.size();*/
 
+
+	}
+
+	@Transactional
+	public void comment(Integer postId, String userName, String comment) {
+		//유저 찾기
+		UserEntity userEntity = userEntityRepository.findByUserName(userName).orElseThrow(() ->
+			new SnsApplicationException(ErrorCode.USER_NOT_FOUND,
+				String.format("%s not founded", userName)));
+
+		//게시글이 존재하는지 확인
+		PostEntity postEntity = postEntityRepository.findById(postId).orElseThrow(() ->
+			new SnsApplicationException(ErrorCode.POST_NOT_FOUND,
+				String.format("%s not founded", postId)));
+
+		// 댓글 저장
+		commentEntityRepository.save(CommentEntity.of(comment, postEntity, userEntity));
+
+	}
+
+	public Page<Comment> getComments(Integer postId, Pageable pageable) {
+
+		//게시글이 존재하는지 확인
+		PostEntity postEntity = postEntityRepository.findById(postId).orElseThrow(() ->
+			new SnsApplicationException(ErrorCode.POST_NOT_FOUND,
+				String.format("%s not founded", postId)));
+
+		return commentEntityRepository.findAllByPost(postEntity, pageable).map(Comment::fromEntity);
 
 	}
 
