@@ -74,7 +74,8 @@ public class PostService {
 			throw new SnsApplicationException(ErrorCode.INVALID_PERMISSION,
 				String.format("%s has no permission with %s", userName, postId));
 		}
-
+		likeEntityRepository.deleteAllByPost(postEntity);
+		commentEntityRepository.deleteAllByPost(postEntity);
 		postEntityRepository.delete(postEntity);
 	}
 
@@ -125,7 +126,6 @@ public class PostService {
 		// 좋아요 개수 가져오기 (변경 전)
 		/*List<LikeEntity> likes = likeEntityRepository.findAllByPost(postEntity);
 		return likes.size();*/
-
 
 	}
 

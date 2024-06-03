@@ -6,9 +6,11 @@ import com.fastcampus.sns.model.entity.UserEntity;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface LikeEntityRepository extends JpaRepository<LikeEntity, Integer> {
@@ -24,5 +26,9 @@ public interface LikeEntityRepository extends JpaRepository<LikeEntity, Integer>
 	// 좋아요 개수 가져오기 (변경 전)
 	List<LikeEntity> findAllByPost(PostEntity post);
 
+	@Transactional
+	@Modifying
+	@Query("UPDATE LikeEntity entity SET entity.removedAt = CURRENT_TIMESTAMP where entity.post = :post")
+	void deleteAllByPost(@Param("post") PostEntity post);
 
 }
