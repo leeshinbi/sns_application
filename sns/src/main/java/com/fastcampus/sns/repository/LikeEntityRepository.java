@@ -22,10 +22,11 @@ public interface LikeEntityRepository extends JpaRepository<LikeEntity, Integer>
 	@Query(value = "SELECT COUNT(*) from LikeEntity entity WHERE entity.post = :post")
 	Integer countByPost(@Param("post") PostEntity post);
 
-
+	
 	// 좋아요 개수 가져오기 (변경 전)
 	List<LikeEntity> findAllByPost(PostEntity post);
 
+	// 포스트 삭제 시 , 좋아요+댓글도 함께 삭제
 	@Transactional
 	@Modifying
 	@Query("UPDATE LikeEntity entity SET entity.removedAt = CURRENT_TIMESTAMP where entity.post = :post")
