@@ -15,6 +15,13 @@ spring:
           dialect: org.hibernate.dialect.PostgreSQLDialect
           format_sql: true
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
 jwt:
   secret-key: fast-campus.simple_sns_2024_secret_key
   token.expired-time-ms: 2592000000  # 30 days
+
+
